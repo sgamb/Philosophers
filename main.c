@@ -6,10 +6,11 @@
 
 typedef struct	s_philo
 {
-	int	when_am_i_die;
-	int	meal_num;
-	int	num;
-	int	until;
+	pthread_t	id;
+	int			when_am_i_die;
+	int			meal_num;
+	int			num;
+	int			until;
 }	t_philo;
 
 void			*philo_routine(void *philo_data);
@@ -23,19 +24,45 @@ pthread_mutex_t	print;
 
 pthread_mutex_t	forks[N];
 
+void	ft_init_forks(void);
+void	ft_init_philosophers(t_philo *philos);
+void	ft_run_philosophers(t_philo *philos);
+void	ft_track_meal_num(t_philo *philos);
+void	ft_wait_philosophers(t_philo *philos);
+
 int main(void)
 {
 	int				i;
-	pthread_t		philo_ids[N];
-	t_philo			philos[N];
+	t_philo			philosophers[N];
 	struct timeval	tv;
 
 	pthread_mutex_init(&print, NULL);
 	gettimeofday(&tv, NULL);
 	srandom(tv.tv_sec);
-	i = 0;
+	ft_init_forks();
+	ft_init_philosophers(philosophers);
+	ft_run_philosophers(philosophers);
+	ft_track_meal_num(philosophers);
 	for (int i = 0; i < N; i++)
-		pthread_mutex_init(&forks[i], NULL);
+		philosophers[i].until = FALSE;
+	ft_wait_philosophers(philosophers);
+	return (0);
+}
+
+void	ft_init_forks(void)
+{
+	int	i;
+
+	i = 0;
+	while (i < N)
+		pthread_mutex_init(&forks[i++], NULL);
+}
+
+void	ft_init_philosophers(t_philo *philos)
+{
+	int	i;
+
+	i = 0;
 	while (i < N)
 	{
 		philos[i].num = i;
@@ -44,9 +71,26 @@ int main(void)
 		philos[i].until = TRUE;
 		i++;
 	}
-	for (int i = 0; i < N; i++)
-		pthread_create(&philo_ids[i], NULL, &philo_routine, &philos[i]);
-	int until = TRUE;
+}
+
+void	ft_run_philosophers(t_philo *philos)
+{
+	int	i;
+
+	i = 0;
+	while (i < N)
+	{
+		pthread_create(&philos[i].id, NULL, &philo_routine, &philos[i]);
+		i++;
+	}
+}
+
+void	ft_track_meal_num(t_philo *philos)
+{
+	int	i;
+	int until;
+
+	until = TRUE;
 	while (until)
 	{
 		i = 0;
@@ -57,11 +101,15 @@ int main(void)
 			i++;
 		}
 	}
-	for (int i = 0; i < N; i++)
-		philos[i].until = FALSE;
-	for (int i = 0; i < N; i++)
-		pthread_join(philo_ids[i], NULL);
-	return (0);
+}
+
+void	ft_wait_philosophers(t_philo *philos)
+{
+	int	i;
+
+	i = 0;
+	while (i < N)
+		pthread_join(philos[i++].id, NULL);
 }
 
 void	*philo_routine(void *philo_data)
@@ -79,10 +127,10 @@ void	*philo_routine(void *philo_data)
 		{
 			pthread_mutex_lock(&forks[data->num]);
 			gettimeofday(&tv, NULL);
-			printf("%ld.%04d %d has taken left fork %d\n", tv.tv_sec % 100, tv.tv_usec % 10000, data->num, data->num);
+			printf("%ld.%04d %d has taken left fork %d\n", tv.tv_sec % 100, tv.tv_usec / 10000, data->num, data->num);
 			pthread_mutex_lock(&forks[(data->num + 1) % N]);
 			gettimeofday(&tv, NULL);
-			printf("%ld.%04d %d has taken right fork %d\n", tv.tv_sec % 100, tv.tv_usec % 10000, data->num, (data->num + 1));
+			printf("%ld.%04d %d has taken right fork %d\n", tv.tv_sec % 100, tv.tv_usec / 10000, data->num, (data->num + 1));
 		}
 		else
 		{
