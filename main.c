@@ -6,15 +6,12 @@
 
 typedef struct	s_philo
 {
-	pthread_t	id;
-	int			when_am_i_die;
-	int			meal_num;
-	int			num;
-	int			until;
+	pthread_t		id;
+	struct timeval	when_am_i_die;
+	int				meal_num;
+	int				num;
+	int				until;
 }	t_philo;
-
-void			*philo_routine(void *philo_data);
-pthread_mutex_t	print;
 
 #define N 5
 #define TIME_TO_DIE 6000
@@ -24,32 +21,79 @@ pthread_mutex_t	print;
 #define TRUE 1
 #define FALSE 0
 
-pthread_mutex_t	forks[N];
+pthread_mutex_t	g_print;
+struct timeval	g_simulation_time_start;
+pthread_mutex_t	g_forks[N];
 
+void	*philo_routine(void *philo_data);
 void	ft_init_forks(void);
 void	ft_init_philosophers(t_philo *philos);
 void	ft_run_philosophers(t_philo *philos);
 void	ft_track_meal_num(t_philo *philos);
 void	ft_wait_philosophers(t_philo *philos);
+void	ft_track_starvation(t_philo *philos);
+void	ft_set_until_false(t_philo *philosophers);
+
+unsigned int	ft_get_time()
+{
+	struct timeval	tv;
+	unsigned int	sec_deltha;
+	int	usec_deltha;
+
+	gettimeofday(&tv, NULL);
+	sec_deltha = tv.tv_sec - g_simulation_time_start.tv_sec;
+	usec_deltha = tv.tv_usec - g_simulation_time_start.tv_usec;
+	return (sec_deltha * 1000 + usec_deltha / 1000);
+}
+
+void	my_print(int who, char *action)
+{
+	unsigned int	time_from_start;
+
+	time_from_start = ft_get_time();
+	printf("%u %d %s\n", time_from_start, who, action);
+}
 
 int main(void)
 {
 	int				i;
 	t_philo			philosophers[N];
-	struct timeval	tv;
 
-	pthread_mutex_init(&print, NULL);
-	gettimeofday(&tv, NULL);
-	srandom(tv.tv_sec);
+	pthread_mutex_init(&g_print, NULL);
+	gettimeofday(&g_simulation_time_start, NULL);
 	ft_init_forks();
 	ft_init_philosophers(philosophers);
 	ft_run_philosophers(philosophers);
 	ft_track_meal_num(philosophers);
-	for (int i = 0; i < N; i++)
-		philosophers[i].until = FALSE;
+	// ft_track_starvation(philosophers);
+	ft_set_until_false(philosophers);
 	ft_wait_philosophers(philosophers);
 	return (0);
 }
+
+void	ft_set_until_false(t_philo *philosophers)
+{
+	for (int i = 0; i < N; i++)
+		philosophers[i].until = FALSE;
+}
+
+void	ft_track_starvation(t_philo *philos)
+{
+	int	i;
+	int until;
+
+	until = TRUE;
+	while (until)
+	{
+		i = 0;
+		while (until && i < N)
+		{
+			// if (philos[i++].when_am_i_die >= NULL)
+				until = FALSE;
+		}
+	}
+}
+
 
 void	ft_init_forks(void)
 {
@@ -57,18 +101,24 @@ void	ft_init_forks(void)
 
 	i = 0;
 	while (i < N)
-		pthread_mutex_init(&forks[i++], NULL);
+		pthread_mutex_init(&g_forks[i++], NULL);
+}
+
+struct timeval time_sum(struct timeval t, unsigned int td)
+{
 }
 
 void	ft_init_philosophers(t_philo *philos)
 {
-	int	i;
+	struct timeval	now;
+	int				i;
 
+	gettimeofday(&now, NULL);
 	i = 0;
 	while (i < N)
 	{
 		philos[i].num = i;
-		philos[i].when_am_i_die = TIME_TO_DIE;
+		philos[i].when_am_i_die = time_sum(now, TIME_TO_DIE);
 		philos[i].meal_num = 0;
 		philos[i].until = TRUE;
 		i++;
@@ -97,11 +147,8 @@ void	ft_track_meal_num(t_philo *philos)
 	{
 		i = 0;
 		while (until && i < N)
-		{
-			if (philos[i].meal_num >= MEAL_NUM)
+			if (philos[i++].meal_num >= MEAL_NUM)
 				until = FALSE;
-			i++;
-		}
 	}
 }
 
@@ -114,7 +161,6 @@ void	ft_wait_philosophers(t_philo *philos)
 		pthread_join(philos[i++].id, NULL);
 }
 
-// void	take_fork(philo, fork);
 void	*philo_routine(void *philo_data)
 {
 	t_philo			*data;
@@ -127,32 +173,25 @@ void	*philo_routine(void *philo_data)
 	{
 		if (data->num % 2 == 0)
 		{
-			pthread_mutex_lock(&forks[data->num]); // take left
-			gettimeofday(&tv, NULL);
-			printf("%ld.%04d %d has taken left fork %d\n", tv.tv_sec % 100, tv.tv_usec / 10000, data->num, data->num);
-			pthread_mutex_lock(&forks[(data->num + 1) % N]); // take right
-			gettimeofday(&tv, NULL);
-			printf("%ld.%04d %d has taken right fork %d\n", tv.tv_sec % 100, tv.tv_usec / 10000, data->num, (data->num + 1));
+			pthread_mutex_lock(&g_forks[data->num]); // take left
+			my_print(data->num, "has taken left fork");
+			pthread_mutex_lock(&g_forks[(data->num + 1) % N]); // take right
+			my_print(data->num, "has taken right fork");
 		}
 		else
 		{
-			pthread_mutex_lock(&forks[(data->num + 1) % N]); // take right
-			gettimeofday(&tv, NULL);
-			printf("%ld.%04d %d has taken right fork %d\n", tv.tv_sec % 100, tv.tv_usec % 10000, data->num, (data->num + 1) % N);
-			pthread_mutex_lock(&forks[data->num]); // take left
-			gettimeofday(&tv, NULL);
-			printf("%ld.%04d %d has taken left fork %d\n", tv.tv_sec % 100, tv.tv_usec % 10000, data->num, data->num);
+			pthread_mutex_lock(&g_forks[(data->num + 1) % N]); // take right
+			my_print(data->num, "has taken right fork");
+			pthread_mutex_lock(&g_forks[data->num]); // take left
+			my_print(data->num, "has taken left fork");
 		}
-		gettimeofday(&tv, NULL);
-		printf("%ld.%04d %d is eating\n", tv.tv_sec % 100, tv.tv_usec % 10000, data->num);
+		my_print(data->num, "is eating");
 		usleep(TIME_TO_EAT);
-		pthread_mutex_unlock(&forks[data->num]);
-		pthread_mutex_unlock(&forks[(data->num + 1) % N]);
-		gettimeofday(&tv, NULL);
-		printf("%ld.%04d %d is sleeping\n", tv.tv_sec % 100, tv.tv_usec % 10000, data->num);
+		pthread_mutex_unlock(&g_forks[data->num]);
+		pthread_mutex_unlock(&g_forks[(data->num + 1) % N]);
+		my_print(data->num, "is sleeping");
 		usleep(TIME_TO_SLEEP);
-		gettimeofday(&tv, NULL);
-		printf("%ld.%04d %d is thinking\n", tv.tv_sec % 100, tv.tv_usec % 10000, data->num);
+		my_print(data->num, "is thinking");
 		data->meal_num++;
 	}
 	return (NULL);
