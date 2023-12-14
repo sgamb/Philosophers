@@ -6,13 +6,11 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:24:02 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/14 15:49:34 by sgambari         ###   ########.fr       */
+/*   Updated: 2023/12/14 20:05:32 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
-
-pthread_mutex_t	g_print;
 
 t_global	*ft_handle_input(int argc, char **argv)
 {
@@ -34,7 +32,6 @@ t_global	*ft_handle_input(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-	int				i;
 	t_philo			*philosophers;
 	t_global		*global_data;
 
@@ -49,6 +46,7 @@ int main(int argc, char **argv)
 	ft_run_philosophers(philosophers, global_data);
 	// ft_track_meal_num(philosophers, global_data); // TODO: add check for argc
 	ft_track_starvation(philosophers, global_data);
+	my_print(global_data, 500, "someone died");
 	ft_set_until_false(philosophers, global_data);
 	ft_wait_philosophers(philosophers, global_data);
 	return (0);
@@ -64,18 +62,19 @@ void	ft_track_starvation(t_philo *philos, t_global *global)
 {
 	struct timeval	now;
 	int				i;
-	int 			until;
 
-	until = TRUE;
-	while (until)
+	i = 0;
+	while (TRUE)
 	{
-		i = 0;
-		while (until && i < global->number_of_philosophers)
-		{
-			gettimeofday(&now, NULL);
-			if (ft_time_less(philos[i++].when_am_i_die, now)) 
-				until = FALSE;
-		}
+		gettimeofday(&now, NULL);
+		if (i == global->number_of_philosophers)
+			i = 0;
+		ft_print_time(philos[i++].when_am_i_die);
+		ft_print_time(now);
+		if (ft_time_less(philos[i++].when_am_i_die, now)) 
+			return ;
+		my_print(global, 200, "debug: not dead");
+		usleep(55 * 1000);
 	}
 }
 
@@ -88,20 +87,6 @@ void	ft_init_forks(t_global *global)
 	i = 0;
 	while (i < global->number_of_philosophers)
 		pthread_mutex_init(&global->forks[i++], NULL);
-}
-
-struct timeval time_sum(struct timeval t, unsigned int td)
-{
-	struct timeval	new_time;
-
-	new_time.tv_sec = t.tv_sec + td / 1000;
-	new_time.tv_usec = t.tv_usec + td % 1000;
-	if (new_time.tv_usec > 1000000)
-	{
-		new_time.tv_sec++;
-		new_time.tv_usec %= 1000000;
-	}
-	return (new_time);
 }
 
 void	ft_init_philosophers(t_philo *philos, t_global *global)
@@ -118,6 +103,7 @@ void	ft_init_philosophers(t_philo *philos, t_global *global)
 		philos[i].global_data = global;
 		i++;
 	}
+	// ft_print_time(philos[--i].when_am_i_die);
 }
 
 void	ft_run_philosophers(t_philo *philos, t_global *global)
@@ -181,11 +167,11 @@ void	*philo_routine(void *data)
 			my_print(global, philo->num, "has taken left fork");
 		}
 		my_print(global, philo->num, "is eating");
-		usleep(global->time_to_eat);
+		usleep(1000 * global->time_to_eat);
 		pthread_mutex_unlock(&global->forks[philo->num]);
 		pthread_mutex_unlock(&global->forks[(philo->num + 1) % global->number_of_philosophers]);
 		my_print(global, philo->num, "is sleeping");
-		usleep(global->time_to_sleep);
+		usleep(1000 * global->time_to_sleep);
 		my_print(global, philo->num, "is thinking");
 		philo->meal_num++;
 	}

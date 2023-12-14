@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:23:47 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/14 15:46:16 by sgambari         ###   ########.fr       */
+/*   Updated: 2023/12/14 20:01:34 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+
+pthread_mutex_t g_print;
 
 typedef struct	s_global
 {
@@ -46,8 +48,10 @@ typedef struct	s_philo
 // time_functions.c
 int		ft_time_less(struct timeval t1, struct timeval t2);
 unsigned int	ft_get_time();
-void	my_print(t_global *global, int who, char *action);
-void	ft_init_simulation_start(t_global *global);
+void			my_print(t_global *global, int who, char *action);
+void			ft_init_simulation_start(t_global *global);
+struct timeval time_sum(struct timeval t, unsigned int td);
+void	ft_print_time(struct timeval t);
 
 void	*philo_routine(void *philo_data);
 void	ft_init_forks(t_global *global);

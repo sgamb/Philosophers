@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:43:12 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/14 15:41:30 by sgambari         ###   ########.fr       */
+/*   Updated: 2023/12/14 20:09:54 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,10 @@ int		ft_time_less(struct timeval t1, struct timeval t2)
 {
 	if (t1.tv_sec < t2.tv_sec)
 		return (TRUE);
+	printf("sec not less\n");
 	if (t1.tv_sec > t2.tv_sec)
 		return (FALSE);
+	printf("milliseconds\n");
 	if (t1.tv_usec < t2.tv_usec)
 		return (TRUE);
 	return (FALSE);
@@ -44,7 +46,27 @@ void	my_print(t_global *global, int who, char *action)
 {
 	unsigned int	time_from_start;
 
+	pthread_mutex_lock(&g_print);
 	time_from_start = ft_get_time(global);
 	printf("%u %d %s\n", time_from_start, who, action);
+	pthread_mutex_unlock(&g_print);
 }
 
+struct timeval time_sum(struct timeval t, unsigned int td)
+{
+	struct timeval	new_time;
+
+	new_time.tv_sec = t.tv_sec + td / 1000;
+	new_time.tv_usec = t.tv_usec + 1000 * (td % 1000);
+	if (new_time.tv_usec > 1000000)
+	{
+		new_time.tv_sec++;
+		new_time.tv_usec %= 1000000;
+	}
+	return (new_time);
+}
+
+void	ft_print_time(struct timeval t)
+{
+	printf("%lu.%u\n", t.tv_sec, t.tv_usec);
+}
