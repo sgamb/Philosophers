@@ -1,4 +1,5 @@
-SRC = main.c
+SRC = main.c	\
+	  time_functions.c
 
 all:
-	cc main.c && ./a.out 3 200 60000 60000 1
+	cc $(SRC) && ./a.out 3 200 60000 60000 1

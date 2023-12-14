@@ -1,68 +1,18 @@
-#include <pthread.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/time.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/12/14 14:24:02 by sgambari          #+#    #+#             */
+/*   Updated: 2023/12/14 15:49:34 by sgambari         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-typedef struct	s_global
-{
-	int	number_of_philosophers;
-	int	time_to_die;
-	int	time_to_eat;
-	int	time_to_sleep;
-	int	number_of_times_each_philosopher_must_eat;
-}	t_global;
-
-typedef struct	s_philo
-{
-	pthread_t		id;
-	struct timeval	when_am_i_die;
-	int				meal_num;
-	int				num;
-	int				until;
-	t_global		*global_data;
-}	t_philo;
-
-#define N 5
-#define TIME_TO_DIE 6000
-#define TIME_TO_EAT 800000
-#define TIME_TO_SLEEP 800000
-#define MEAL_NUM 5
-#define TRUE 1
-#define FALSE 0
+#include "philosophers.h"
 
 pthread_mutex_t	g_print;
-struct timeval	g_simulation_time_start;
-pthread_mutex_t	g_forks[N];
-
-void	*philo_routine(void *philo_data);
-void	ft_init_forks(void);
-void	ft_init_philosophers(t_philo *philos, t_global *global);
-void	ft_run_philosophers(t_philo *philos, t_global *global);
-void	ft_track_meal_num(t_philo *philos, t_global *global);
-void	ft_wait_philosophers(t_philo *philos, t_global *global);
-void	ft_track_starvation(t_philo *philos, t_global *global);
-void	ft_set_until_false(t_philo *philosophers);
-
-unsigned int	ft_get_time()
-{
-	struct timeval	tv;
-	unsigned int	sec_deltha;
-	int				usec_deltha;
-
-	gettimeofday(&tv, NULL);
-	sec_deltha = tv.tv_sec - g_simulation_time_start.tv_sec;
-	usec_deltha = tv.tv_usec - g_simulation_time_start.tv_usec;
-	return (sec_deltha * 1000 + usec_deltha / 1000);
-}
-
-void	my_print(int who, char *action)
-{
-	unsigned int	time_from_start;
-
-	time_from_start = ft_get_time();
-	printf("%u %d %s\n", time_from_start, who, action);
-}
 
 t_global	*ft_handle_input(int argc, char **argv)
 {
@@ -75,6 +25,8 @@ t_global	*ft_handle_input(int argc, char **argv)
 		return (NULL);
 	global->number_of_philosophers = atoi(argv[1]); // TODO: update atoi
 	global->time_to_die = atoi(argv[2]);
+	global->time_to_eat = atoi(argv[3]);
+	global->time_to_sleep = atoi(argv[4]);
 	if (argc == 6)
 		global->number_of_times_each_philosopher_must_eat = atoi(argv[5]);
 	return (global);
@@ -83,39 +35,29 @@ t_global	*ft_handle_input(int argc, char **argv)
 int main(int argc, char **argv)
 {
 	int				i;
-	t_philo			philosophers[N];
+	t_philo			*philosophers;
 	t_global		*global_data;
 
 	pthread_mutex_init(&g_print, NULL);
-	gettimeofday(&g_simulation_time_start, NULL);
 	global_data = ft_handle_input(argc, argv);
 	if (global_data == NULL)
 		exit(1); // TODO: handle error better
-	ft_init_forks();
+	ft_init_forks(global_data);
+	ft_init_simulation_start(global_data);
+	philosophers = (t_philo *)malloc(sizeof(t_philo) * global_data->number_of_philosophers);
 	ft_init_philosophers(philosophers, global_data);
 	ft_run_philosophers(philosophers, global_data);
 	// ft_track_meal_num(philosophers, global_data); // TODO: add check for argc
 	ft_track_starvation(philosophers, global_data);
-	ft_set_until_false(philosophers);
+	ft_set_until_false(philosophers, global_data);
 	ft_wait_philosophers(philosophers, global_data);
 	return (0);
 }
 
-void	ft_set_until_false(t_philo *philosophers)
+void	ft_set_until_false(t_philo *philosophers, t_global *global)
 {
-	for (int i = 0; i < N; i++)
+	for (int i = 0; i < global->number_of_philosophers; i++)
 		philosophers[i].until = FALSE;
-}
-
-int		ft_time_less(struct timeval t1, struct timeval t2)
-{
-	if (t1.tv_sec < t2.tv_sec)
-		return (TRUE);
-	if (t1.tv_sec > t2.tv_sec)
-		return (FALSE);
-	if (t1.tv_usec < t2.tv_usec)
-		return (TRUE);
-	return (FALSE);
 }
 
 void	ft_track_starvation(t_philo *philos, t_global *global)
@@ -138,13 +80,14 @@ void	ft_track_starvation(t_philo *philos, t_global *global)
 }
 
 
-void	ft_init_forks(void)
+void	ft_init_forks(t_global *global)
 {
 	int	i;
 
+	global->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * global->number_of_philosophers);
 	i = 0;
-	while (i < N)
-		pthread_mutex_init(&g_forks[i++], NULL);
+	while (i < global->number_of_philosophers)
+		pthread_mutex_init(&global->forks[i++], NULL);
 }
 
 struct timeval time_sum(struct timeval t, unsigned int td)
@@ -163,15 +106,13 @@ struct timeval time_sum(struct timeval t, unsigned int td)
 
 void	ft_init_philosophers(t_philo *philos, t_global *global)
 {
-	struct timeval	now;
-	int				i;
+	int	i;
 
-	gettimeofday(&now, NULL);
 	i = 0;
 	while (i < global->number_of_philosophers)
 	{
 		philos[i].num = i;
-		philos[i].when_am_i_die = time_sum(now, global->time_to_die);
+		philos[i].when_am_i_die = time_sum(global->simulation_time_start, global->time_to_die);
 		philos[i].meal_num = 0;
 		philos[i].until = TRUE;
 		philos[i].global_data = global;
@@ -186,6 +127,7 @@ void	ft_run_philosophers(t_philo *philos, t_global *global)
 	i = 0;
 	while (i < global->number_of_philosophers)
 	{
+		printf("debug: i'm alive\n");
 		pthread_create(&philos[i].id, NULL, &philo_routine, &philos[i]);
 		i++;
 	}
@@ -217,38 +159,35 @@ void	ft_wait_philosophers(t_philo *philos, t_global *global)
 
 void	*philo_routine(void *data)
 {
-	t_philo			*philo_data;
-	struct timeval	tv;
-	int				sleep_time;
-	t_global		*global_data;
+	t_philo			*philo;
+	t_global		*global;
 
-	philo_data = (t_philo *)data;
-	global_data = philo_data->global_data;
-	sleep_time = (1 + (philo_data->num % global_data->number_of_philosophers)) * 100000;
-	while (philo_data->until)
+	philo = (t_philo *)data;
+	global = philo->global_data;
+	while (philo->until)
 	{
-		if (philo_data->num % 2 == 0)
+		if (philo->num % 2 == 0)
 		{
-			pthread_mutex_lock(&g_forks[philo_data->num]); // take left
-			my_print(philo_data->num, "has taken left fork");
-			pthread_mutex_lock(&g_forks[(philo_data->num + 1) % global_data->number_of_philosophers]); // take right
-			my_print(philo_data->num, "has taken right fork");
+			pthread_mutex_lock(&global->forks[philo->num]); // take left
+			my_print(global, philo->num, "has taken left fork");
+			pthread_mutex_lock(&global->forks[(philo->num + 1) % global->number_of_philosophers]); // take right
+			my_print(global, philo->num, "has taken right fork");
 		}
 		else
 		{
-			pthread_mutex_lock(&g_forks[(philo_data->num + 1) % global_data->number_of_philosophers]); // take right
-			my_print(philo_data->num, "has taken right fork");
-			pthread_mutex_lock(&g_forks[philo_data->num]); // take left
-			my_print(philo_data->num, "has taken left fork");
+			pthread_mutex_lock(&global->forks[(philo->num + 1) % global->number_of_philosophers]); // take right
+			my_print(global, philo->num, "has taken right fork");
+			pthread_mutex_lock(&global->forks[philo->num]); // take left
+			my_print(global, philo->num, "has taken left fork");
 		}
-		my_print(philo_data->num, "is eating");
-		usleep(TIME_TO_EAT);
-		pthread_mutex_unlock(&g_forks[philo_data->num]);
-		pthread_mutex_unlock(&g_forks[(philo_data->num + 1) % global_data->number_of_philosophers]);
-		my_print(philo_data->num, "is sleeping");
-		usleep(TIME_TO_SLEEP);
-		my_print(philo_data->num, "is thinking");
-		philo_data->meal_num++;
+		my_print(global, philo->num, "is eating");
+		usleep(global->time_to_eat);
+		pthread_mutex_unlock(&global->forks[philo->num]);
+		pthread_mutex_unlock(&global->forks[(philo->num + 1) % global->number_of_philosophers]);
+		my_print(global, philo->num, "is sleeping");
+		usleep(global->time_to_sleep);
+		my_print(global, philo->num, "is thinking");
+		philo->meal_num++;
 	}
 	return (NULL);
 }
