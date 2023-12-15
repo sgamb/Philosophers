@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:43:12 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/14 20:09:54 by sgambari         ###   ########.fr       */
+/*   Updated: 2023/12/15 17:27:00 by tumolabs         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,8 @@ int		ft_time_less(struct timeval t1, struct timeval t2)
 {
 	if (t1.tv_sec < t2.tv_sec)
 		return (TRUE);
-	printf("sec not less\n");
 	if (t1.tv_sec > t2.tv_sec)
 		return (FALSE);
-	printf("milliseconds\n");
 	if (t1.tv_usec < t2.tv_usec)
 		return (TRUE);
 	return (FALSE);
@@ -68,5 +66,5 @@ struct timeval time_sum(struct timeval t, unsigned int td)
 
 void	ft_print_time(struct timeval t)
 {
-	printf("%lu.%u\n", t.tv_sec, t.tv_usec);
+	printf("%lu.%6u\n", t.tv_sec, t.tv_usec);
 }

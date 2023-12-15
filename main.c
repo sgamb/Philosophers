@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:24:02 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/14 20:05:32 by sgambari         ###   ########.fr       */
+/*   Updated: 2023/12/15 18:04:12 by tumolabs         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ int main(int argc, char **argv)
 	ft_run_philosophers(philosophers, global_data);
 	// ft_track_meal_num(philosophers, global_data); // TODO: add check for argc
 	ft_track_starvation(philosophers, global_data);
-	my_print(global_data, 500, "someone died");
 	ft_set_until_false(philosophers, global_data);
 	ft_wait_philosophers(philosophers, global_data);
 	return (0);
@@ -69,12 +68,11 @@ void	ft_track_starvation(t_philo *philos, t_global *global)
 		gettimeofday(&now, NULL);
 		if (i == global->number_of_philosophers)
 			i = 0;
-		ft_print_time(philos[i++].when_am_i_die);
-		ft_print_time(now);
 		if (ft_time_less(philos[i++].when_am_i_die, now)) 
+		{
+			my_print(global, --i, "is died");
 			return ;
-		my_print(global, 200, "debug: not dead");
-		usleep(55 * 1000);
+		}
 	}
 }
 
@@ -103,7 +101,6 @@ void	ft_init_philosophers(t_philo *philos, t_global *global)
 		philos[i].global_data = global;
 		i++;
 	}
-	// ft_print_time(philos[--i].when_am_i_die);
 }
 
 void	ft_run_philosophers(t_philo *philos, t_global *global)
@@ -113,7 +110,6 @@ void	ft_run_philosophers(t_philo *philos, t_global *global)
 	i = 0;
 	while (i < global->number_of_philosophers)
 	{
-		printf("debug: i'm alive\n");
 		pthread_create(&philos[i].id, NULL, &philo_routine, &philos[i]);
 		i++;
 	}
@@ -155,6 +151,8 @@ void	*philo_routine(void *data)
 		if (philo->num % 2 == 0)
 		{
 			pthread_mutex_lock(&global->forks[philo->num]); // take left
+			if (!philo->until)
+				return (NULL);
 			my_print(global, philo->num, "has taken left fork");
 			pthread_mutex_lock(&global->forks[(philo->num + 1) % global->number_of_philosophers]); // take right
 			my_print(global, philo->num, "has taken right fork");
@@ -162,16 +160,25 @@ void	*philo_routine(void *data)
 		else
 		{
 			pthread_mutex_lock(&global->forks[(philo->num + 1) % global->number_of_philosophers]); // take right
+			if (!philo->until)
+				return (NULL);
 			my_print(global, philo->num, "has taken right fork");
 			pthread_mutex_lock(&global->forks[philo->num]); // take left
 			my_print(global, philo->num, "has taken left fork");
 		}
+		if (!philo->until)
+			return (NULL);
 		my_print(global, philo->num, "is eating");
+		philo->when_am_i_die = time_sum(philo->when_am_i_die, global->time_to_die);
 		usleep(1000 * global->time_to_eat);
 		pthread_mutex_unlock(&global->forks[philo->num]);
 		pthread_mutex_unlock(&global->forks[(philo->num + 1) % global->number_of_philosophers]);
+		if (!philo->until)
+			return (NULL);
 		my_print(global, philo->num, "is sleeping");
 		usleep(1000 * global->time_to_sleep);
+		if (!philo->until)
+			return (NULL);
 		my_print(global, philo->num, "is thinking");
 		philo->meal_num++;
 	}
