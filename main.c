@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:24:02 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/15 18:04:12 by tumolabs         ###   ########.fr       */
+/*   Updated: 2023/12/18 20:02:50 by serge            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@ int main(int argc, char **argv)
 	t_philo			*philosophers;
 	t_global		*global_data;
 
-	pthread_mutex_init(&g_print, NULL);
 	global_data = ft_handle_input(argc, argv);
 	if (global_data == NULL)
 		exit(1); // TODO: handle error better
@@ -150,6 +149,7 @@ void	*philo_routine(void *data)
 	{
 		if (philo->num % 2 == 0)
 		{
+			usleep(1234);
 			pthread_mutex_lock(&global->forks[philo->num]); // take left
 			if (!philo->until)
 				return (NULL);

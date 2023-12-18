@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:23:47 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/14 20:01:34 by sgambari         ###   ########.fr       */
+/*   Updated: 2023/12/18 20:01:35 by serge            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-
-pthread_mutex_t g_print;
 
 typedef struct	s_global
 {

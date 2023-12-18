@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:43:12 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/15 17:27:00 by tumolabs         ###   ########.fr       */
+/*   Updated: 2023/12/18 20:01:43 by serge            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,8 @@ void	my_print(t_global *global, int who, char *action)
 {
 	unsigned int	time_from_start;
 
-	pthread_mutex_lock(&g_print);
 	time_from_start = ft_get_time(global);
 	printf("%u %d %s\n", time_from_start, who, action);
-	pthread_mutex_unlock(&g_print);
 }
 
 struct timeval time_sum(struct timeval t, unsigned int td)
@@ -64,7 +62,7 @@ struct timeval time_sum(struct timeval t, unsigned int td)
 	return (new_time);
 }
 
-void	ft_print_time(struct timeval t)
+/*void	ft_print_time(struct timeval t)
 {
 	printf("%lu.%6u\n", t.tv_sec, t.tv_usec);
-}
+}*/
