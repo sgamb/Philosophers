@@ -6,13 +6,13 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:43:12 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/18 20:01:43 by serge            ###   ########.fr       */
+/*   Updated: 2023/12/19 17:44:57 by serge            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-int		ft_time_less(struct timeval t1, struct timeval t2)
+int	ft_time_less(struct timeval t1, struct timeval t2)
 {
 	if (t1.tv_sec < t2.tv_sec)
 		return (TRUE);
@@ -48,7 +48,7 @@ void	my_print(t_global *global, int who, char *action)
 	printf("%u %d %s\n", time_from_start, who, action);
 }
 
-struct timeval time_sum(struct timeval t, unsigned int td)
+struct timeval	time_sum(struct timeval t, unsigned int td)
 {
 	struct timeval	new_time;
 
