@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:23:47 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/19 20:51:02 by serge            ###   ########.fr       */
+/*   Updated: 2023/12/26 20:56:47 by serge            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,9 @@ void			ft_init_simulation_start(t_global *global);
 struct timeval	time_sum(struct timeval t, unsigned int td);
 void			ft_print_time(struct timeval t);
 
+// main.c
+t_global		*ft_handle_input(int argc, char **argv);
+
 void			*philo_routine(void *philo_data);
 void			ft_init_forks(t_global *global);
 void			ft_init_philosophers(t_philo *philos, t_global *global);
@@ -60,5 +63,9 @@ void			ft_track_meal_num(t_philo *philos, t_global *global);
 void			ft_wait_philosophers(t_philo *philos, t_global *global);
 void			ft_track_starvation(t_philo *philos, t_global *global);
 void			ft_set_until_false(t_philo *philosophers, t_global *global);
+
+// parsing_functions.c
+int				ft_atoi(const char *str);
+int				ft_validate_input(int argc, char **argv);
 
 #endif

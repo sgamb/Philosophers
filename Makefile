@@ -1,4 +1,5 @@
 SRC = main.c	\
+	  parsing_functions.c	\
 	  time_functions.c
 
 all:

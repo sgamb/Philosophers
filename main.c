@@ -6,29 +6,11 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:24:02 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/19 21:06:06 by serge            ###   ########.fr       */
+/*   Updated: 2023/12/26 20:58:23 by serge            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
-
-t_global	*ft_handle_input(int argc, char **argv)
-{
-	t_global	*global;
-
-	if (argc < 5)
-		return (NULL);
-	global = (t_global *)malloc(sizeof(t_global));
-	if (global == NULL)
-		return (NULL);
-	global->number_of_philosophers = atoi(argv[1]); // TODO: update atoi
-	global->time_to_die = atoi(argv[2]);
-	global->time_to_eat = atoi(argv[3]);
-	global->time_to_sleep = atoi(argv[4]);
-	if (argc == 6)
-		global->number_of_times_each_philosopher_must_eat = atoi(argv[5]);
-	return (global);
-}
 
 int	main(int argc, char **argv)
 {
@@ -37,18 +19,36 @@ int	main(int argc, char **argv)
 
 	global_data = ft_handle_input(argc, argv);
 	if (global_data == NULL)
-		exit(1); // TODO: handle error better
+		return (1);
 	ft_init_forks(global_data);
 	ft_init_simulation_start(global_data);
 	philosophers = (t_philo *)malloc(sizeof(t_philo)
 			* global_data->number_of_philosophers);
 	ft_init_philosophers(philosophers, global_data);
 	ft_run_philosophers(philosophers, global_data);
-	// ft_track_meal_num(philosophers, global_data); // TODO: add check for argc
+	// ft_track_meal_num(philosophers, global_data); // TODO: track meal number
 	ft_track_starvation(philosophers, global_data);
 	ft_set_until_false(philosophers, global_data);
 	ft_wait_philosophers(philosophers, global_data);
 	return (0);
+}
+
+t_global	*ft_handle_input(int argc, char **argv)
+{
+	t_global	*global;
+
+	if (!ft_validate_input(argc, argv))
+		return (NULL);
+	global = (t_global *)malloc(sizeof(t_global));
+	if (global == NULL)
+		return (NULL);
+	global->number_of_philosophers = ft_atoi(argv[1]);
+	global->time_to_die = ft_atoi(argv[2]);
+	global->time_to_eat = ft_atoi(argv[3]);
+	global->time_to_sleep = ft_atoi(argv[4]);
+	if (argc == 6)
+		global->number_of_times_each_philosopher_must_eat = ft_atoi(argv[5]);
+	return (global);
 }
 
 void	ft_set_until_false(t_philo *philosophers, t_global *global)
