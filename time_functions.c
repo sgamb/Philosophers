@@ -56,8 +56,3 @@ struct timeval	time_sum(struct timeval t, unsigned int td)
 	}
 	return (new_time);
 }
-
-/*void	ft_print_time(struct timeval t)
-{
-	printf("%lu.%6u\n", t.tv_sec, t.tv_usec);
-}*/

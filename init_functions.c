@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/16 21:01:12 by sgambari          #+#    #+#             */
-/*   Updated: 2024/01/16 21:01:13 by sgambari         ###   ########.fr       */
+/*   Updated: 2024/01/16 22:38:59 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,9 @@ t_global	*ft_init_global_data(int argc, char **argv)
 	global->time_to_sleep = ft_atoi(argv[4]);
 	if (argc == 6)
 		global->number_of_times_each_philosopher_must_eat = ft_atoi(argv[5]);
+	else
+		global->number_of_times_each_philosopher_must_eat = 999999;
+	global->until = 1;
 	return (global);
 }
 
@@ -54,6 +57,8 @@ void	ft_init_philosophers(t_philo *philos, t_global *global)
 		philos[i].meal_num = 0;
 		philos[i].until = TRUE;
 		philos[i].global_data = global;
+		pthread_mutex_init(&philos[i].last_ate_mutex, NULL);
 		i++;
 	}
+	global->philos = (void *) philos;
 }
