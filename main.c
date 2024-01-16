@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:24:02 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/26 20:58:23 by serge            ###   ########.fr       */
+/*   Updated: 2024/01/16 20:57:54 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,11 @@ int	main(int argc, char **argv)
 	t_philo			*philosophers;
 	t_global		*global_data;
 
-	global_data = ft_handle_input(argc, argv);
+	global_data = ft_init_global_data(argc, argv);
 	if (global_data == NULL)
 		return (1);
 	ft_init_forks(global_data);
-	ft_init_simulation_start(global_data);
+	gettimeofday(&global_data->simulation_time_start, NULL);
 	philosophers = (t_philo *)malloc(sizeof(t_philo)
 			* global_data->number_of_philosophers);
 	ft_init_philosophers(philosophers, global_data);
@@ -31,80 +31,6 @@ int	main(int argc, char **argv)
 	ft_set_until_false(philosophers, global_data);
 	ft_wait_philosophers(philosophers, global_data);
 	return (0);
-}
-
-t_global	*ft_handle_input(int argc, char **argv)
-{
-	t_global	*global;
-
-	if (!ft_validate_input(argc, argv))
-		return (NULL);
-	global = (t_global *)malloc(sizeof(t_global));
-	if (global == NULL)
-		return (NULL);
-	global->number_of_philosophers = ft_atoi(argv[1]);
-	global->time_to_die = ft_atoi(argv[2]);
-	global->time_to_eat = ft_atoi(argv[3]);
-	global->time_to_sleep = ft_atoi(argv[4]);
-	if (argc == 6)
-		global->number_of_times_each_philosopher_must_eat = ft_atoi(argv[5]);
-	return (global);
-}
-
-void	ft_set_until_false(t_philo *philosophers, t_global *global)
-{
-	int	i;
-
-	i = 0;
-	while (i < global->number_of_philosophers)
-		philosophers[i++].until = FALSE;
-}
-
-void	ft_track_starvation(t_philo *philos, t_global *global)
-{
-	struct timeval	now;
-	int				i;
-
-	i = 0;
-	while (TRUE)
-	{
-		gettimeofday(&now, NULL);
-		if (i == global->number_of_philosophers)
-			i = 0;
-		if (ft_time_less(philos[i++].when_am_i_die, now))
-		{
-			my_print(global, --i, "is died");
-			return ;
-		}
-	}
-}
-
-void	ft_init_forks(t_global *global)
-{
-	int	i;
-
-	global->forks = (pthread_mutex_t *)malloc(
-			sizeof(pthread_mutex_t) * global->number_of_philosophers);
-	i = 0;
-	while (i < global->number_of_philosophers)
-		pthread_mutex_init(&global->forks[i++], NULL);
-}
-
-void	ft_init_philosophers(t_philo *philos, t_global *global)
-{
-	int	i;
-
-	i = 0;
-	while (i < global->number_of_philosophers)
-	{
-		philos[i].num = i;
-		philos[i].when_am_i_die = time_sum(
-				global->simulation_time_start, global->time_to_die);
-		philos[i].meal_num = 0;
-		philos[i].until = TRUE;
-		philos[i].global_data = global;
-		i++;
-	}
 }
 
 void	ft_run_philosophers(t_philo *philos, t_global *global)
@@ -117,6 +43,34 @@ void	ft_run_philosophers(t_philo *philos, t_global *global)
 		pthread_create(&philos[i].id, NULL, &philo_routine, &philos[i]);
 		i++;
 	}
+}
+
+void	ft_track_starvation(t_philo *philos, t_global *global)
+{
+	struct timeval	now;
+	int				i;
+
+	i = 0;
+	while (TRUE)
+	{
+		gettimeofday(&now, NULL);
+		if (ft_time_less(philos[i++].when_am_i_die, now))
+		{
+			my_print(global, --i, "is died");
+			return ;
+		}
+		if (i == global->number_of_philosophers)
+			i = 0;
+	}
+}
+
+void	ft_set_until_false(t_philo *philosophers, t_global *global)
+{
+	int	i;
+
+	i = 0;
+	while (i < global->number_of_philosophers)
+		philosophers[i++].until = FALSE;
 }
 
 void	ft_track_meal_num(t_philo *philos, t_global *global)

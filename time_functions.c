@@ -23,11 +23,6 @@ int	ft_time_less(struct timeval t1, struct timeval t2)
 	return (FALSE);
 }
 
-void	ft_init_simulation_start(t_global *global)
-{
-	gettimeofday(&global->simulation_time_start, NULL);
-}
-
 unsigned int	ft_get_time(t_global *global)
 {
 	struct timeval	tv;

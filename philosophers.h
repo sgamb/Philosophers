@@ -48,21 +48,21 @@ typedef struct s_philo
 // time_functions.c
 int				ft_time_less(struct timeval t1, struct timeval t2);
 void			my_print(t_global *global, int who, char *action);
-void			ft_init_simulation_start(t_global *global);
 struct timeval	time_sum(struct timeval t, unsigned int td);
 void			ft_print_time(struct timeval t);
 
-// main.c
-t_global		*ft_handle_input(int argc, char **argv);
-
-void			*philo_routine(void *philo_data);
+// init_functions.c
+t_global		*ft_init_global_data(int argc, char **argv);
 void			ft_init_forks(t_global *global);
 void			ft_init_philosophers(t_philo *philos, t_global *global);
+
+// main.c
 void			ft_run_philosophers(t_philo *philos, t_global *global);
 void			ft_track_meal_num(t_philo *philos, t_global *global);
 void			ft_wait_philosophers(t_philo *philos, t_global *global);
 void			ft_track_starvation(t_philo *philos, t_global *global);
 void			ft_set_until_false(t_philo *philosophers, t_global *global);
+void			*philo_routine(void *philo_data);
 
 // parsing_functions.c
 int				ft_atoi(const char *str);
