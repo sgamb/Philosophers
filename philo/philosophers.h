@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:23:47 by sgambari          #+#    #+#             */
-/*   Updated: 2024/01/16 21:53:54 by sgambari         ###   ########.fr       */
+/*   Updated: 2024/01/17 20:14:11 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ typedef struct s_global
 	int				time_to_sleep;
 	int				number_of_times_each_philosopher_must_eat;
 	pthread_mutex_t	*forks;
+	pthread_mutex_t	print_mutex;
 	struct timeval	simulation_time_start;
 	void			*philos;
 	pthread_t		starvation_tracker_thread_id;

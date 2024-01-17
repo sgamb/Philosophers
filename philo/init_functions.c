@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/16 21:01:12 by sgambari          #+#    #+#             */
-/*   Updated: 2024/01/16 22:38:59 by sgambari         ###   ########.fr       */
+/*   Updated: 2024/01/17 20:15:41 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ t_global	*ft_init_global_data(int argc, char **argv)
 	else
 		global->number_of_times_each_philosopher_must_eat = 999999;
 	global->until = 1;
+	pthread_mutex_init(&global->print_mutex, NULL);
 	return (global);
 }
 

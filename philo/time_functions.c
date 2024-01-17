@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:43:12 by sgambari          #+#    #+#             */
-/*   Updated: 2023/12/19 17:44:57 by serge            ###   ########.fr       */
+/*   Updated: 2024/01/17 20:15:26 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,9 @@ void	my_print(t_global *global, int who, char *action)
 	unsigned int	time_from_start;
 
 	time_from_start = ft_get_time(global);
+	pthread_mutex_lock(&global->print_mutex);
 	printf("%u %d %s\n", time_from_start, who, action);
+	pthread_mutex_unlock(&global->print_mutex);
 }
 
 struct timeval	time_sum(struct timeval t, unsigned int td)
