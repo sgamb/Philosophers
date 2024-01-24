@@ -6,11 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/16 22:40:53 by sgambari          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/01/24 12:31:46 by serge            ###   ########.fr       */
-=======
-/*   Updated: 2024/01/24 16:51:47 by sgambari         ###   ########.fr       */
->>>>>>> Meal num mutex and free
+/*   Updated: 2024/01/24 18:08:10 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +19,12 @@ void	ft_track_meal_num(t_philo *philos, t_global *global)
 	while (global->until)
 	{
 		i = 0;
-		while (until && i < global->number_of_philosophers)
+		while (global->until && i < global->number_of_philosophers)
 		{
 			pthread_mutex_lock(&philos[i].meal_num_mutex);
 			if (philos[i].meal_num
 				>= global->number_of_times_each_philosopher_must_eat)
-				until = FALSE;
+				global->until = FALSE;
 			pthread_mutex_unlock(&philos[i].meal_num_mutex);
 			i++;
 		}
