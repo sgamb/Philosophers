@@ -11,11 +11,13 @@ NAME = philo
 
 all: $(NAME)
 
+FSAN = -fsanitize=thread
+
 %.o: %.c
-	cc -Wall -Werror -Wextra -c $^ -o $@
+	cc -Wall -Werror -Wextra $(FSAN) -c $^ -o $@
 
 $(NAME): $(OBJ)
-	cc -Wall -Werror -Wextra $(OBJ) -o $(NAME)
+	cc -Wall -Werror -Wextra $(FSAN) $(OBJ) -o $(NAME)
 
 clean:
 	rm -f $(OBJ)

@@ -4,3 +4,4 @@ en.subject.pdf
 README.md
 tags
 philo/philo
+philo/*.o

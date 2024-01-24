@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:24:02 by sgambari          #+#    #+#             */
-/*   Updated: 2024/01/16 22:39:33 by sgambari         ###   ########.fr       */
+/*   Updated: 2024/01/17 20:28:37 by serge            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,4 +64,5 @@ void	ft_wait_philosophers(t_philo *philos, t_global *global)
 	while (i < global->number_of_philosophers)
 		pthread_join(philos[i++].id, NULL);
 	pthread_join(global->starvation_tracker_thread_id, NULL);
+	printf("end\n");
 }
