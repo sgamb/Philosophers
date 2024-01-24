@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/16 21:01:12 by sgambari          #+#    #+#             */
-/*   Updated: 2024/01/17 20:15:41 by sgambari         ###   ########.fr       */
+/*   Updated: 2024/01/24 16:51:12 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ void	ft_init_philosophers(t_philo *philos, t_global *global)
 		philos[i].until = TRUE;
 		philos[i].global_data = global;
 		pthread_mutex_init(&philos[i].last_ate_mutex, NULL);
+		pthread_mutex_init(&philos[i].meal_num_mutex, NULL);
 		i++;
 	}
 	global->philos = (void *) philos;

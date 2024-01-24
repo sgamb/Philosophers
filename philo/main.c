@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:24:02 by sgambari          #+#    #+#             */
-/*   Updated: 2024/01/17 20:28:37 by serge            ###   ########.fr       */
+/*   Updated: 2024/01/24 18:05:34 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,9 @@ int	main(int argc, char **argv)
 	ft_track_meal_num(philosophers, global_data);
 	ft_set_until_false(philosophers, global_data);
 	ft_wait_philosophers(philosophers, global_data);
+	free(global_data->forks);
+	free(philosophers);
+	free(global_data);
 	return (0);
 }
 

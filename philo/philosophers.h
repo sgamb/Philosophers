@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 14:23:47 by sgambari          #+#    #+#             */
-/*   Updated: 2024/01/17 20:14:11 by sgambari         ###   ########.fr       */
+/*   Updated: 2024/01/24 16:50:34 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ typedef struct s_philo
 	pthread_t		id;
 	struct timeval	when_am_i_die;
 	int				meal_num;
+	pthread_mutex_t	meal_num_mutex;
 	int				num;
 	int				until;
 	t_global		*global_data;

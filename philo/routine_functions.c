@@ -6,7 +6,7 @@
 /*   By: sgambari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/16 21:24:26 by sgambari          #+#    #+#             */
-/*   Updated: 2024/01/16 21:54:15 by sgambari         ###   ########.fr       */
+/*   Updated: 2024/01/24 16:57:32 by sgambari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,9 @@ void	ft_eat(t_philo *philo, t_global *g)
 	philo->when_am_i_die = time_sum(philo->when_am_i_die, g->time_to_die);
 	pthread_mutex_unlock(&philo->last_ate_mutex);
 	usleep(1000 * g->time_to_eat);
+	pthread_mutex_lock(&philo->meal_num_mutex);
 	philo->meal_num++;
+	pthread_mutex_unlock(&philo->meal_num_mutex);
 	pthread_mutex_unlock(&g->forks[philo->num]);
 	pthread_mutex_unlock(right_fork(philo->num, g));
 }
